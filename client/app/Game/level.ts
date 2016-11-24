@@ -3,6 +3,7 @@
 import {Hero} from "./hero";
 import {AssetManager} from "./assetManager";
 import {ITile} from "./runEngine";
+import {Keys, KeyManager} from "./keyManager";
 export class Level {
     public tiles: number[][];
     public hero: Hero;
@@ -68,13 +69,13 @@ export class Level {
         var endX = Math.ceil((this.viewPortX + this.viewPortWidth ) / 16) * 16;
         var startY = (this.viewPortY / 16 | 0) * 16;
         var endY = Math.ceil((this.viewPortY + this.viewPortHeight ) / 16) * 16;
-        console.log(startX, endX);
         for (let x = startX; x < endX; x += 16) {
             for (let y = startY; y < endY; y += 16) {
                 var xPos = (x);
                 var yPos = (y);
                 switch (this.tiles[x / 16 | 0][y / 16 | 0]) {
                     case 0:
+                        context.drawImage(AssetManager.getAsset('empty'), xPos, yPos);
                         break;
                     case 1:
                         context.drawImage(AssetManager.getAsset('solid'), xPos, yPos);
@@ -130,7 +131,7 @@ export class Level {
         }
 
         if (this.tiles[x][y] == 4 && ya > 0) {
-            this.hero.ya = -50;
+            this.hero.ya = (KeyManager.keys[Keys.Jump]?-48:-32);
             return true;
         }
         return false;

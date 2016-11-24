@@ -24,7 +24,6 @@ export class Hero {
     private mayJump: boolean = true;
     private wasOnGround: boolean = false;
     private xPic: number;
-    private bumped: boolean;
     private bounce: boolean;
 
 
@@ -60,7 +59,6 @@ export class Hero {
 
 
         if (KeyManager.keys[Keys.Jump] || (this.jumpTime < 0 && !this.onGround && !this.sliding)) {
-            this.bumped = false;
             if (this.jumpTime < 0) {
                 this.xa = this.xJumpSpeed;
                 this.ya = -this.jumpTime * this.yJumpSpeed;
@@ -191,33 +189,37 @@ export class Hero {
         }
 
         var collide = false;
+
+        let x_off = xa > 0 ? Math.ceil(this.x + xa) : Math.floor(this.x + xa);
+        let y_off = ya > 0 ? Math.ceil(this.y + ya) : Math.floor(this.y + ya);
+
         if (ya > 0 || (type == 'y' && ya == 0)) {
-            if (this.isBlocking(this.x + xa - this.width, this.y + ya, xa, ya)) collide = true;
-            else if (this.isBlocking(this.x + xa + this.width, this.y + ya, xa, ya)) collide = true;
-            else if (this.isBlocking(this.x + xa - this.width, this.y + ya + 1, xa, ya)) collide = true;
-            else if (this.isBlocking(this.x + xa + this.width, this.y + ya + 1, xa, ya)) collide = true;
+            if (this.isBlocking(x_off - this.width, y_off, xa, ya)) collide = true;
+            else if (this.isBlocking(x_off + this.width, y_off, xa, ya)) collide = true;
+            else if (this.isBlocking(x_off - this.width, y_off + 1, xa, ya)) collide = true;
+            else if (this.isBlocking(x_off + this.width, y_off + 1, xa, ya)) collide = true;
         }
         if (ya < 0) {
-            if (this.isBlocking(this.x + xa, this.y + ya - this.height, xa, ya)) collide = true;
-            else if (collide || this.isBlocking(this.x + xa - this.width, this.y + ya - this.height, xa, ya)) collide = true;
-            else if (collide || this.isBlocking(this.x + xa + this.width, this.y + ya - this.height, xa, ya)) collide = true;
+            if (this.isBlocking(x_off, y_off - this.height, xa, ya)) collide = true;
+            else if (collide || this.isBlocking(x_off - this.width, y_off - this.height, xa, ya)) collide = true;
+            else if (collide || this.isBlocking(x_off + this.width, y_off - this.height, xa, ya)) collide = true;
         }
         if (xa > 0) {
             this.sliding = true;
-            if (this.isBlocking(this.x + xa + this.width, this.y + ya - this.height, xa, ya)) collide = true;
+            if (this.isBlocking(x_off + this.width, y_off - this.height, xa, ya)) collide = true;
             else this.sliding = false;
-            if (this.isBlocking(this.x + xa + this.width, this.y + ya - this.height / 2, xa, ya)) collide = true;
+            if (this.isBlocking(x_off + this.width, y_off - this.height / 2, xa, ya)) collide = true;
             else this.sliding = false;
-            if (this.isBlocking(this.x + xa + this.width, this.y + ya, xa, ya)) collide = true;
+            if (this.isBlocking(x_off + this.width, y_off, xa, ya)) collide = true;
             else this.sliding = false;
         }
         if (xa < 0) {
             this.sliding = true;
-            if (this.isBlocking(this.x + xa - this.width, this.y + ya - this.height, xa, ya)) collide = true;
+            if (this.isBlocking(x_off - this.width, y_off - this.height, xa, ya)) collide = true;
             else this.sliding = false;
-            if (this.isBlocking(this.x + xa - this.width, this.y + ya - this.height / 2, xa, ya)) collide = true;
+            if (this.isBlocking(x_off - this.width, y_off - this.height / 2, xa, ya)) collide = true;
             else this.sliding = false;
-            if (this.isBlocking(this.x + xa - this.width, this.y + ya, xa, ya)) collide = true;
+            if (this.isBlocking(x_off - this.width, y_off, xa, ya)) collide = true;
             else this.sliding = false;
         }
         if (this.bounce) {
@@ -265,13 +267,8 @@ export class Hero {
             return false;
 
         var blocking = this.level.isBlocking(x, y, xa, ya);
-        //console.log(x, y, blocking);
-
-        //var block = this.level.getBlock(x, y);
-
-        if (!this.bumped && blocking) {
+        if (blocking) {
             this.bounce = this.level.bump(x, y, xa, ya);
-            this.bumped = true;
         }
 
         return blocking;
