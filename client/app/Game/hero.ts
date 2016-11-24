@@ -295,7 +295,7 @@ export class Hero {
         //console.log(xPixel, yPixel);
         var xFlipPic = this.facing == -1;
 
-        context.translate(xPixel + (xFlipPic ? wPic : 0)/*- (int) Mario.instance.levelScene.xCam*/, yPixel);
+        context.translate(xPixel + (xFlipPic ? wPic : 0), yPixel);
 
         if (xFlipPic) {
             context.scale(-1, 1);

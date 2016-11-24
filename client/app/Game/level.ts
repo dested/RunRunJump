@@ -2,27 +2,50 @@
 
 import {Hero} from "./hero";
 import {AssetManager} from "./assetManager";
+import {ITile} from "./runEngine";
 export class Level {
-    private hero: Hero;
-    tiles: number[][];
+    public tiles: number[][];
+    public hero: Hero;
+    private levelWidth = 50;
+    private levelHeight = 14 * 2;
+    selectedTile: ITile;
+
+    public viewPortX = 0;
+    public viewPortY = 0;
+
+    public viewPortWidth = 256;
+    public viewPortHeight = 224;
+
+    updateViewPort() {
+        this.viewPortX = Math.max(this.hero.x - this.viewPortWidth / 2, 0);
+        if (this.viewPortX + this.viewPortWidth > this.levelWidth * 16) {
+            this.viewPortX = this.levelWidth * 16 - this.viewPortWidth;
+        }
+
+        this.viewPortY = Math.max(this.hero.y - this.viewPortHeight / 2, 0);
+        if (this.viewPortY + this.viewPortHeight > this.levelHeight * 16) {
+            this.viewPortY = this.levelHeight * 16 - this.viewPortHeight;
+        }
+
+    }
 
     constructor() {
         this.tiles = [];
-        for (var x = 0; x < 100; x++) {
+        for (var x = 0; x < this.levelWidth; x++) {
             this.tiles[x] = [];
 
-            for (var y = 0; y < 30; y++) {
+            for (var y = 0; y < this.levelHeight; y++) {
                 this.tiles[x][y] = 0;
             }
         }
-        for (var x = 0; x < 16; x++) {
-            for (var y = 0; y < 30; y += 1) {
+        for (var x = 0; x < this.levelWidth; x++) {
+            for (var y = 0; y < this.levelHeight; y += 1) {
 
-                this.tiles[x][y] = (y == 13 ? 1 : 0);
+                this.tiles[x][y] = (y == this.levelHeight - 1 ? 1 : 0);
 
                 if (x == 0) this.tiles[x][y] = 1;
 
-                if (x == 15 && y < 21 && y >= 0) {
+                if (x == this.levelWidth - 1 && y < this.levelHeight && y >= 0) {
                     this.tiles[x][y] = 1;
                 }
 
@@ -37,24 +60,33 @@ export class Level {
     }
 
     render(context: CanvasRenderingContext2D): void {
+        this.updateViewPort();
 
+        context.translate(-this.viewPortX, -this.viewPortY);
 
-        for (let x = 0; x < 100; x++) {
-            for (let y = 0; y < 30; y++) {
-                switch (this.tiles[x][y]) {
+        var startX = (this.viewPortX / 16 | 0) * 16;
+        var endX = Math.ceil((this.viewPortX + this.viewPortWidth ) / 16) * 16;
+        var startY = (this.viewPortY / 16 | 0) * 16;
+        var endY = Math.ceil((this.viewPortY + this.viewPortHeight ) / 16) * 16;
+        console.log(startX, endX);
+        for (let x = startX; x < endX; x += 16) {
+            for (let y = startY; y < endY; y += 16) {
+                var xPos = (x);
+                var yPos = (y);
+                switch (this.tiles[x / 16 | 0][y / 16 | 0]) {
                     case 0:
                         break;
                     case 1:
-                        context.drawImage(AssetManager.getAsset('solid'), x * 16, y * 16);
+                        context.drawImage(AssetManager.getAsset('solid'), xPos, yPos);
                         break;
                     case 2:
-                        context.drawImage(AssetManager.getAsset('breakable'), x * 16, y * 16);
+                        context.drawImage(AssetManager.getAsset('breakable'), xPos, yPos);
                         break;
                     case 3:
-                        context.drawImage(AssetManager.getAsset('no-bottom'), x * 16, y * 16);
+                        context.drawImage(AssetManager.getAsset('no-bottom'), xPos, yPos);
                         break;
                     case 4:
-                        context.drawImage(AssetManager.getSheet('spring', 0, 0), x * 16, y * 16);
+                        context.drawImage(AssetManager.getSheet('spring', 0, 0), xPos, yPos);
                         break;
                 }
             }
@@ -102,6 +134,12 @@ export class Level {
             return true;
         }
         return false;
+    }
+
+    click(x: number, y: number) {
+
+        this.tiles[(x + this.viewPortX) / 16 | 0][(y + this.viewPortY) / 16 | 0] = this.selectedTile.index;
+
     }
 }
 //http://gamedev.stackexchange.com/questions/74387/platformer-collision-detection-order

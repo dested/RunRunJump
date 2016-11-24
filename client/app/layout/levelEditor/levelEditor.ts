@@ -35,7 +35,7 @@ export class LevelEditor implements OnInit {
         }];
         setTimeout(()=>{
             this.selectTile(this.tiles[0]);
-        },1)
+        },100)
     }
 
     ngOnInit() {
@@ -43,7 +43,7 @@ export class LevelEditor implements OnInit {
 
     public selectTile(tile: ITile): void {
         document.getElementById('hiddenBox').focus();
-        RunEngine.instance.selectedTile = tile;
+        RunEngine.instance.level.selectedTile = tile;
         this.selectedTile = tile;
         this.layout.loading = false;
     }

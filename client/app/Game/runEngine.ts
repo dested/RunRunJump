@@ -7,7 +7,7 @@ import {Hero} from "./hero";
 
 export class RunEngine {
     static instance: RunEngine;
-    selectedTile: ITile;
+
     private fpsMeter;
 
     constructor() {
@@ -27,7 +27,7 @@ export class RunEngine {
         });
     }
 
-    private level: Level;
+    level: Level;
     private hero: Hero;
     private canvas: HTMLCanvasElement;
     private context: CanvasRenderingContext2D;
@@ -37,7 +37,7 @@ export class RunEngine {
 
         this.level = new Level();
         this.hero = new Hero(this.level);
-        this.level.setHero(this.hero, 32, 32);
+        this.level.setHero(this.hero, 32, 224*2-16);
 
         var mouseDown = false;
 
@@ -46,8 +46,8 @@ export class RunEngine {
             let w = this.canvas.clientWidth / this.canvas.width;
             let h = this.canvas.clientHeight / this.canvas.height;
 
-            let x = (ev.clientX / 16 / w) | 0;
-            let y = (ev.clientY / 16 / h) | 0;
+            let x = (ev.clientX  / w) ;
+            let y = (ev.clientY  / h) ;
             this.click(x, y);
             mouseDown = true;
         };
@@ -57,8 +57,8 @@ export class RunEngine {
             let w = this.canvas.clientWidth / this.canvas.width;
             let h = this.canvas.clientHeight / this.canvas.height;
 
-            let x = (ev.clientX / 16 / w) | 0;
-            let y = (ev.clientY / 16 / h) | 0;
+            let x = (ev.clientX  / w) ;
+            let y = (ev.clientY  / h) ;
             this.click(x, y);
         };
         this.canvas.onmouseup = (ev) => {
@@ -102,7 +102,7 @@ export class RunEngine {
     }
 
     private click(x: number, y: number) {
-        this.level.tiles[x][y] = this.selectedTile.index;
+        this.level.click(x,y)
     }
 }
 export interface ITile {
