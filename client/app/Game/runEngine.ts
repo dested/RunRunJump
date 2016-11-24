@@ -1,6 +1,5 @@
 /// <reference path="../../typings/keyboardjs.d.ts" />
 
-import {CanvasInformation} from "../common/canvasInformation";
 import {AssetManager} from "./assetManager";
 import {KeyManager} from "./keyManager";
 import {Level} from "./level";
@@ -8,15 +7,18 @@ import {Hero} from "./hero";
 
 export class RunEngine {
     static instance: RunEngine;
+    selectedTile: ITile;
     private fpsMeter;
 
     constructor() {
 
-        this.fpsMeter = new (<any>window).FPSMeter(document.getElementById('canvasBox'), {
+        let canvasBox = document.getElementById('canvasBox');
+        this.fpsMeter = new (<any>window).FPSMeter(canvasBox, {
             right: '5px',
             left: 'auto',
             heat: 1
         });
+
 
         RunEngine.instance = this;
         KeyManager.start();
@@ -37,8 +39,32 @@ export class RunEngine {
         this.hero = new Hero(this.level);
         this.level.setHero(this.hero, 32, 32);
 
+        var mouseDown = false;
 
         this.canvas = <HTMLCanvasElement>document.getElementById('spriteLayer');
+        this.canvas.onmousedown = (ev) => {
+            let w = this.canvas.clientWidth / this.canvas.width;
+            let h = this.canvas.clientHeight / this.canvas.height;
+
+            let x = (ev.clientX / 16 / w) | 0;
+            let y = (ev.clientY / 16 / h) | 0;
+            this.click(x, y);
+            mouseDown = true;
+        };
+        this.canvas.onmousemove = (ev) => {
+            if (!mouseDown)return;
+
+            let w = this.canvas.clientWidth / this.canvas.width;
+            let h = this.canvas.clientHeight / this.canvas.height;
+
+            let x = (ev.clientX / 16 / w) | 0;
+            let y = (ev.clientY / 16 / h) | 0;
+            this.click(x, y);
+        };
+        this.canvas.onmouseup = (ev) => {
+            mouseDown = false;
+        };
+
         this.context = this.canvas.getContext('2d');
 
 
@@ -57,19 +83,17 @@ export class RunEngine {
     }
 
 
-    private resizeCanvas(): void {
-        this.canvas.width = window.innerWidth;
-        this.canvas.height = window.innerHeight;
+    private resizeCanvas(): void {/*
+     this.canvas.width = window.innerWidth;
+     this.canvas.height = window.innerHeight;*/
     }
 
     private renderFrame() {
         window.requestAnimationFrame(() => {
-
             this.context.save();
             this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
-            this.context.scale(3, 3);
             this.context.msImageSmoothingEnabled = false;
-            this.context.imageSmoothingEnabled = false;
+            (<any>this.context).imageSmoothingEnabled = false;
             this.level.render(this.context);
             this.context.restore();
             this.fpsMeter.tick();
@@ -77,5 +101,12 @@ export class RunEngine {
         });
     }
 
-
+    private click(x: number, y: number) {
+        this.level.tiles[x][y] = this.selectedTile.index;
+    }
+}
+export interface ITile {
+    image: string;
+    index: number;
+    title: string;
 }

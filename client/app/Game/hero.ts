@@ -2,36 +2,37 @@
 
 import {Level} from "./level";
 import {AssetManager} from "./assetManager";
-import {KeyManager,Keys} from "./keyManager";
+import {KeyManager, Keys} from "./keyManager";
 
 export class Hero {
-    private level:Level;
-    public x:number = 0;
-    public y:number = 0;
-    public xa:number = 0;
-    public ya:number = 0;
-    public facing:number = 1;
-    public jumpTime:number = 0;
-    public ducking:boolean = false;
-    public sliding:boolean = false;
-    private runTime:number = 0;
-    private onGround:boolean = false;
-    private xJumpSpeed:number = 0;
-    private yJumpSpeed:number = 0;
+    private level: Level;
+    public x: number = 0;
+    public y: number = 0;
+    public xa: number = 0;
+    public ya: number = 0;
+    public facing: number = 1;
+    public jumpTime: number = 0;
+    public ducking: boolean = false;
+    public sliding: boolean = false;
+    private runTime: number = 0;
+    private onGround: boolean = false;
+    private xJumpSpeed: number = 0;
+    private yJumpSpeed: number = 0;
 
-    private width:number = 4;
-    private height:number = 24;
-    private mayJump:boolean = true;
-    private wasOnGround:boolean = false;
-    private xPic:number;
-    private bumped:boolean;
+    private width: number = 4;
+    private height: number = 24;
+    private mayJump: boolean = true;
+    private wasOnGround: boolean = false;
+    private xPic: number;
+    private bumped: boolean;
+    private bounce: boolean;
 
 
-    constructor(level:Level) {
+    constructor(level: Level) {
         this.level = level;
     }
 
-    tick():void {
+    tick(): void {
         //console.log(this.x, this.y, this.xa, this.ya);
         var xSpeed = KeyManager.keys[Keys.Run] && !this.ducking ? 1.2 : .6;
 
@@ -125,7 +126,7 @@ export class Hero {
         this.onGround = false;
         this.move(this.xa, 0, 'x');
         this.move(0, this.ya, 'y');
-        if (this.onGround)this.ya = 0;
+        if (this.onGround) this.ya = 0;
 
         this.ya *= HeroConstants.gravity;
         if (this.onGround) {
@@ -145,7 +146,7 @@ export class Hero {
 
     }
 
-    private calcPic():void {
+    private calcPic(): void {
         var runFrame = ((this.runTime / 20) | 0) % 4;
         if (runFrame == 3) runFrame = 1;
         if (Math.abs(this.xa) >= 9) {
@@ -169,7 +170,7 @@ export class Hero {
         this.xPic = runFrame;
     }
 
-    private move(xa:number, ya:number, type:string):boolean {
+    private move(xa: number, ya: number, type: string): boolean {
 
 
         while (xa > 8) {
@@ -191,8 +192,8 @@ export class Hero {
 
         var collide = false;
         if (ya > 0 || (type == 'y' && ya == 0)) {
-            if (this.isBlocking(this.x + xa - this.width, this.y + ya, xa, 0)) collide = true;
-            else if (this.isBlocking(this.x + xa + this.width, this.y + ya, xa, 0)) collide = true;
+            if (this.isBlocking(this.x + xa - this.width, this.y + ya, xa, ya)) collide = true;
+            else if (this.isBlocking(this.x + xa + this.width, this.y + ya, xa, ya)) collide = true;
             else if (this.isBlocking(this.x + xa - this.width, this.y + ya + 1, xa, ya)) collide = true;
             else if (this.isBlocking(this.x + xa + this.width, this.y + ya + 1, xa, ya)) collide = true;
         }
@@ -219,40 +220,44 @@ export class Hero {
             if (this.isBlocking(this.x + xa - this.width, this.y + ya, xa, ya)) collide = true;
             else this.sliding = false;
         }
-
-        if (type == 'y' && ya == 0 && collide) {
-            this.y = (((this.y - 1) / 16 + 1) | 0) * 16 - 1;
-            this.onGround = true;
+        if (this.bounce) {
+            this.bounce = false;
             return false;
-        }
-        if (collide) {
-            if (xa < 0) {
-                this.x = (((this.x - this.width) / 16) | 0) * 16 + this.width;
-                this.xa = 0;
-            }
-            if (xa > 0) {
-                this.x = (((this.x + this.width) / 16 + 1) | 0) * 16 - this.width - 1;
-                this.xa = 0;
-            }
-            if (ya < 0) {
-                this.y = (((this.y - this.height) / 16) | 0) * 16 + this.height;
-                this.jumpTime = 0;
-                this.ya = 0;
-            }
-            if (ya > 0) {
+        } else {
+            if (type == 'y' && ya == 0 && collide) {
                 this.y = (((this.y - 1) / 16 + 1) | 0) * 16 - 1;
                 this.onGround = true;
+                return false;
             }
-            return false;
-        }
-        else {
-            this.x += xa;
-            this.y += ya;
-            return true;
+            if (collide) {
+                if (xa < 0) {
+                    this.x = (((this.x - this.width) / 16) | 0) * 16 + this.width;
+                    this.xa = 0;
+                }
+                if (xa > 0) {
+                    this.x = (((this.x + this.width) / 16 + 1) | 0) * 16 - this.width - 1;
+                    this.xa = 0;
+                }
+                if (ya < 0) {
+                    this.y = (((this.y - this.height) / 16) | 0) * 16 + this.height;
+                    this.jumpTime = 0;
+                    this.ya = 0;
+                }
+                if (ya > 0) {
+                    this.y = (((this.y - 1) / 16 + 1) | 0) * 16 - 1;
+                    this.onGround = true;
+                }
+                return false;
+            }
+            else {
+                this.x += xa;
+                this.y += ya;
+                return true;
+            }
         }
     }
 
-    private isBlocking(_x:number, _y:number, xa:number, ya:number):boolean {
+    private isBlocking(_x: number, _y: number, xa: number, ya: number): boolean {
 
         var x = (_x / 16) | 0;
         var y = (_y / 16) | 0;
@@ -264,21 +269,19 @@ export class Hero {
 
         //var block = this.level.getBlock(x, y);
 
-        if (!this.bumped && blocking && ya < 0) {
-            this.level.bump(x, y);
+        if (!this.bumped && blocking) {
+            this.bounce = this.level.bump(x, y, xa, ya);
             this.bumped = true;
         }
 
         return blocking;
-
-
     }
 
-    render(context:CanvasRenderingContext2D):void {
+    render(context: CanvasRenderingContext2D): void {
 
 
         context.save();
-        var xPicO:number, yPicO:number, wPic:number, hPic:number;
+        var xPicO: number, yPicO: number, wPic: number, hPic: number;
 
         xPicO = 16;
         yPicO = 31;
@@ -297,7 +300,7 @@ export class Hero {
         if (xFlipPic) {
             context.scale(-1, 1);
         }
-        console.log(this.xa, this.ya);
+        // console.log(this.xa, this.ya);
         context.drawImage(AssetManager.getSheet('hero', this.xPic, 0), 0, 0);
 
         context.restore();
@@ -306,9 +309,9 @@ export class Hero {
 }
 
 export class HeroConstants {
-    static gravity:number = .85;
-    static groundInertia:number = .89;
-    static airInertia:number = .89;
+    static gravity: number = .85;
+    static groundInertia: number = .89;
+    static airInertia: number = .89;
 
 }
 

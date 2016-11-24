@@ -16,8 +16,8 @@ export class Layout {
         this.title = '';
         this.tabItems = [
             {
-                image: 'assets/images/tabs/sonic.png',
-                label: 'Level Select'
+                image: 'assets/images/tabs/level-editor.png',
+                label: 'Level Editor'
             }
         ];
         this.tabClick(0);

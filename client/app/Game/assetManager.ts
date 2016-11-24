@@ -12,7 +12,10 @@ export class AssetManager {
         this.assetSheet = {};
         return Promise.all([
             this.loadSheet("hero", "assets/game/hero-sheet.png", new Size(32, 32)),
-            this.loadAsset("block", "assets/game/block.png")
+            this.loadAsset("breakable", "assets/game/breakable.png"),
+            this.loadAsset("solid", "assets/game/solid.png"),
+            this.loadAsset("no-bottom", "assets/game/no-bottom.png"),
+            this.loadSheet("spring", "assets/game/spring.png",new Size(16, 16)),
         ]);
     }
 
