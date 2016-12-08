@@ -14,8 +14,8 @@ export class Level {
     public viewPortX = 0;
     public viewPortY = 0;
 
-    public viewPortWidth = 256;
-    public viewPortHeight = 224;
+    public viewPortWidth = 256*2;
+    public viewPortHeight = 224*2;
 
     updateViewPort() {
         this.viewPortX = Math.max(this.hero.x - this.viewPortWidth / 2, 0);
@@ -73,9 +73,9 @@ export class Level {
             for (let y = startY; y < endY; y += 16) {
                 var xPos = (x);
                 var yPos = (y);
+                context.drawImage(AssetManager.getAsset('empty'), xPos, yPos);
                 switch (this.tiles[x / 16 | 0][y / 16 | 0]) {
                     case 0:
-                        context.drawImage(AssetManager.getAsset('empty'), xPos, yPos);
                         break;
                     case 1:
                         context.drawImage(AssetManager.getAsset('solid'), xPos, yPos);

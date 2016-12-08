@@ -1,7 +1,7 @@
 
 <div class="col" style="padding :0; margin:0;position:relative;height:100vh; user-select:none;" [class.s8]="!collapseSide" [class.s12]="collapseSide" id="canvasBox">
     <button style="width:1px;height:1px; left:-200px;top:-200px;position:absolute;" id="hiddenBox">a</button>
-    <canvas id="spriteLayer" width="256" height="224" class="game-canvas"></canvas>
+    <canvas id="spriteLayer" width="512" height="448" class="game-canvas"></canvas>
 </div>
 <span style="position:absolute; font-size:2rem; color:white; right:5px; bottom:5px" *ngIf="collapseSide" (click)="collapse(false)"><<<</span>
 

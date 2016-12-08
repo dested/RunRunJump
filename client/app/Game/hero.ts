@@ -44,7 +44,7 @@ export class Hero {
 
 
         if (wasDucking && !this.ducking) {
-            if (this.isBlocking(this.x, this.y - 16, 0, 0)) {
+            if (this.isBlocking(this.x, this.y - 16, 0, -1)) {
                 this.ducking = true;
             }
         }
